@@ -51,6 +51,9 @@ const questions = [
     }
 ];
 
+let timeLeft = 20;
+let quizTimer = null;
+
 let currentQuestionIndex = 0;
 let score = 0;
 let selectedAnswer = null;
@@ -153,6 +156,13 @@ function changeDetails() {
     landingScreen.classList.add('active');
 }
 
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
 function startQuiz() {
     homeScreen.classList.remove('active');
     quizScreen.classList.add('active');
@@ -161,6 +171,7 @@ function startQuiz() {
 
     currentQuestionIndex = 0;
     score = 0;
+    shuffleArray(questions);
 
     showQuestion();
 }
@@ -188,9 +199,12 @@ function showQuestion() {
 
         optionsContainer.appendChild(option);
     }
+    startTimer();
 }
 
 function selectAnswer(answerIndex, optionElement) {
+    clearInterval(quizTimer);
+    quizTimer = null;
     const allOptions = document.querySelectorAll('.option');
     for (let i = 0; i < allOptions.length; i++) {
         allOptions[i].classList.remove('selected');
@@ -213,6 +227,27 @@ function nextQuestion() {
     } else {
         showResult();
     }
+}
+
+function startTimer() {
+    if (quizTimer !== null) {
+        clearInterval(quizTimer);
+    }
+
+    timeLeft = 20;
+    const timerEl = document.getElementById("timer");
+    timerEl.textContent = "⏱️ 20s";
+
+    quizTimer = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = "⏱️ " + timeLeft + "s";
+
+        if (timeLeft <= 0) {
+            clearInterval(quizTimer);
+            quizTimer = null;
+            nextQuestion();
+        }
+    }, 1000);
 }
 
 function showResult() {
@@ -244,3 +279,4 @@ function restartQuiz() {
     score = 0;
     selectedAnswer = null;
 }
+
