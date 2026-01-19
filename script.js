@@ -1,200 +1,246 @@
+const questions = [
+    {
+        question: "What does HTML stand for?",
+        options: [
+            "Hyper Text Markup Language",
+            "High Tech Modern Language",
+            "Home Tool Markup Language",
+            "Hyperlinks and Text Markup Language"
+        ],
+        correct: 0
+    },
+    {
+        question: "Which CSS property is used to change text color?",
+        options: [
+            "text-color",
+            "font-color",
+            "color",
+            "text-style"
+        ],
+        correct: 2
+    },
+    {
+        question: "What is the correct way to declare a JavaScript variable?",
+        options: [
+            "variable x = 5;",
+            "let x = 5;",
+            "v x = 5;",
+            "dim x = 5;"
+        ],
+        correct: 1
+    },
+    {
+        question: "Which symbol is used for comments in JavaScript?",
+        options: [
+            "<!-- -->",
+            "/* */",
+            "//",
+            "Both B and C"
+        ],
+        correct: 3
+    },
+    {
+        question: "What does CSS stand for?",
+        options: [
+            "Computer Style Sheets",
+            "Cascading Style Sheets",
+            "Creative Style Sheets",
+            "Colorful Style Sheets"
+        ],
+        correct: 1
+    }
+];
 
-        // ===== QUIZ QUESTIONS DATABASE =====
-        // Array of objects - each object is one question
-        const questions = [
-            {
-                question: "What does HTML stand for?",
-                options: [
-                    "Hyper Text Markup Language",
-                    "High Tech Modern Language",
-                    "Home Tool Markup Language",
-                    "Hyperlinks and Text Markup Language"
-                ],
-                correct: 0  // Index of correct answer (first option)
-            },
-            {
-                question: "Which CSS property is used to change text color?",
-                options: [
-                    "text-color",
-                    "font-color",
-                    "color",
-                    "text-style"
-                ],
-                correct: 2
-            },
-            {
-                question: "What is the correct way to declare a JavaScript variable?",
-                options: [
-                    "variable x = 5;",
-                    "let x = 5;",
-                    "v x = 5;",
-                    "dim x = 5;"
-                ],
-                correct: 1
-            },
-            {
-                question: "Which symbol is used for comments in JavaScript?",
-                options: [
-                    "<!-- -->",
-                    "/* */",
-                    "//",
-                    "Both B and C"
-                ],
-                correct: 3
-            },
-            {
-                question: "What does CSS stand for?",
-                options: [
-                    "Computer Style Sheets",
-                    "Cascading Style Sheets",
-                    "Creative Style Sheets",
-                    "Colorful Style Sheets"
-                ],
-                correct: 1
-            }
-        ];
+let currentQuestionIndex = 0;
+let score = 0;
+let selectedAnswer = null;
 
-        // ===== GLOBAL VARIABLES =====
-        let currentQuestionIndex = 0;  // Tracks which question we're on
-        let score = 0;  // Tracks the user's score
-        let selectedAnswer = null;  // Stores the currently selected answer
+let participantData = {
+    name: '',
+    email: '',
+    phone: '',
+    age: ''
+};
 
-        // ===== GET ALL DOM ELEMENTS =====
-        const homeScreen = document.getElementById('home-screen');
-        const quizScreen = document.getElementById('quiz-screen');
-        const resultScreen = document.getElementById('result-screen');
+const landingScreen = document.getElementById('landing-screen');
+const homeScreen = document.getElementById('home-screen');
+const quizScreen = document.getElementById('quiz-screen');
+const resultScreen = document.getElementById('result-screen');
 
-        const startBtn = document.getElementById('start-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const restartBtn = document.getElementById('restart-btn');
+const registrationForm = document.getElementById('registration-form');
+const startBtn = document.getElementById('start-btn');
+const changeDetailsBtn = document.getElementById('change-details-btn');
+const nextBtn = document.getElementById('next-btn');
+const restartBtn = document.getElementById('restart-btn');
 
-        const questionCounter = document.getElementById('question-counter');
-        const questionText = document.getElementById('question-text');
-        const optionsContainer = document.getElementById('options-container');
+const nameInput = document.getElementById('participant-name');
+const emailInput = document.getElementById('participant-email');
+const phoneInput = document.getElementById('participant-phone');
+const ageInput = document.getElementById('participant-age');
 
-        const scoreNumber = document.getElementById('score-number');
-        const totalQuestionsEl = document.getElementById('total-questions');
-        const correctAnswersEl = document.getElementById('correct-answers');
-        const wrongAnswersEl = document.getElementById('wrong-answers');
-        const percentageEl = document.getElementById('percentage');
+const nameGroup = document.getElementById('name-group');
+const emailGroup = document.getElementById('email-group');
+const phoneGroup = document.getElementById('phone-group');
+const ageGroup = document.getElementById('age-group');
 
-        // ===== EVENT LISTENERS =====
-        startBtn.addEventListener('click', startQuiz);
-        nextBtn.addEventListener('click', nextQuestion);
-        restartBtn.addEventListener('click', restartQuiz);
+const questionCounter = document.getElementById('question-counter');
+const questionText = document.getElementById('question-text');
+const optionsContainer = document.getElementById('options-container');
 
-        // ===== FUNCTION: START QUIZ =====
-        function startQuiz() {
-            // Hide home screen, show quiz screen
-            homeScreen.classList.remove('active');
-            quizScreen.classList.add('active');
-            
-            // Reset variables
-            currentQuestionIndex = 0;
-            score = 0;
-            
-            // Show first question
-            showQuestion();
-        }
+const scoreNumber = document.getElementById('score-number');
+const totalQuestionsEl = document.getElementById('total-questions');
+const correctAnswersEl = document.getElementById('correct-answers');
+const wrongAnswersEl = document.getElementById('wrong-answers');
+const percentageEl = document.getElementById('percentage');
 
-        // ===== FUNCTION: SHOW QUESTION =====
-        function showQuestion() {
-            // Reset selected answer
-            selectedAnswer = null;
-            nextBtn.disabled = true;
-            
-            // Get current question object
-            const currentQuestion = questions[currentQuestionIndex];
-            
-            // Update question counter (add 1 because index starts at 0)
-            questionCounter.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
-            
-            // Update question text
-            questionText.textContent = currentQuestion.question;
-            
-            // Clear previous options
-            optionsContainer.innerHTML = '';
-            
-            // Create option buttons
-            for (let i = 0; i < currentQuestion.options.length; i++) {
-                const option = document.createElement('div');
-                option.className = 'option';
-                option.textContent = currentQuestion.options[i];
-                
-                // Add click event to each option
-                option.addEventListener('click', function() {
-                    selectAnswer(i, option);
-                });
-                
-                optionsContainer.appendChild(option);
-            }
-        }
+registrationForm.addEventListener('submit', handleRegistration);
+startBtn.addEventListener('click', startQuiz);
+changeDetailsBtn.addEventListener('click', changeDetails);
+nextBtn.addEventListener('click', nextQuestion);
+restartBtn.addEventListener('click', restartQuiz);
 
-        // ===== FUNCTION: SELECT ANSWER =====
-        function selectAnswer(answerIndex, optionElement) {
-            // Remove 'selected' class from all options
-            const allOptions = document.querySelectorAll('.option');
-            for (let i = 0; i < allOptions.length; i++) {
-                allOptions[i].classList.remove('selected');
-            }
-            
-            // Add 'selected' class to clicked option
-            optionElement.classList.add('selected');
-            
-            // Store the selected answer
-            selectedAnswer = answerIndex;
-            
-            // Enable next button
-            nextBtn.disabled = false;
-        }
+function handleRegistration(e) {
+    e.preventDefault();
 
-        // ===== FUNCTION: NEXT QUESTION =====
-        function nextQuestion() {
-            // Check if answer is correct
-            if (selectedAnswer === questions[currentQuestionIndex].correct) {
-                score++;  // Increase score
-            }
-            
-            // Move to next question
-            currentQuestionIndex++;
-            
-            // Check if quiz is finished
-            if (currentQuestionIndex < questions.length) {
-                showQuestion();  // Show next question
-            } else {
-                showResult();  // Show result screen
-            }
-        }
+    nameGroup.classList.remove('error');
+    emailGroup.classList.remove('error');
+    phoneGroup.classList.remove('error');
+    ageGroup.classList.remove('error');
 
-        // ===== FUNCTION: SHOW RESULT =====
-        function showResult() {
-            // Hide quiz screen, show result screen
-            quizScreen.classList.remove('active');
-            resultScreen.classList.add('active');
-            
-            // Calculate results
-            const totalQuestions = questions.length;
-            const correctAnswers = score;
-            const wrongAnswers = totalQuestions - correctAnswers;
-            const percentage = Math.round((correctAnswers / totalQuestions) * 100);
-            
-            // Update result display
-            scoreNumber.textContent = score;
-            totalQuestionsEl.textContent = totalQuestions;
-            correctAnswersEl.textContent = correctAnswers;
-            wrongAnswersEl.textContent = wrongAnswers;
-            percentageEl.textContent = percentage + '%';
-        }
+    let isValid = true;
 
-        // ===== FUNCTION: RESTART QUIZ =====
-        function restartQuiz() {
-            // Hide result screen, show home screen
-            resultScreen.classList.remove('active');
-            homeScreen.classList.add('active');
-            
-            // Reset everything
-            currentQuestionIndex = 0;
-            score = 0;
-            selectedAnswer = null;
-        }
-   
+    if (nameInput.value.trim() === '') {
+        nameGroup.classList.add('error');
+        isValid = false;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(emailInput.value.trim())) {
+        emailGroup.classList.add('error');
+        isValid = false;
+    }
+
+    const phonePattern = /^[0-9]{10}$/;
+    if (!phonePattern.test(phoneInput.value.trim())) {
+        phoneGroup.classList.add('error');
+        isValid = false;
+    }
+
+    if (ageInput.value.trim() === '') {
+        ageGroup.classList.add('error');
+        isValid = false;
+    }
+
+    if (isValid) {
+        participantData.name = nameInput.value.trim();
+        participantData.email = emailInput.value.trim();
+        participantData.phone = phoneInput.value.trim();
+        participantData.age = ageInput.value.trim();
+
+        document.getElementById('display-name').textContent = participantData.name;
+        document.getElementById('info-name').textContent = participantData.name;
+        document.getElementById('info-email').textContent = participantData.email;
+        document.getElementById('info-phone').textContent = participantData.phone;
+        document.getElementById('info-age').textContent = participantData.age;
+
+        landingScreen.classList.remove('active');
+        homeScreen.classList.add('active');
+    }
+}
+
+function changeDetails() {
+    homeScreen.classList.remove('active');
+    landingScreen.classList.add('active');
+}
+
+function startQuiz() {
+    homeScreen.classList.remove('active');
+    quizScreen.classList.add('active');
+
+    document.getElementById('quiz-participant-name').textContent = participantData.name;
+
+    currentQuestionIndex = 0;
+    score = 0;
+
+    showQuestion();
+}
+
+function showQuestion() {
+    selectedAnswer = null;
+    nextBtn.disabled = true;
+
+    const currentQuestion = questions[currentQuestionIndex];
+
+    questionCounter.textContent =
+        `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+
+    questionText.textContent = currentQuestion.question;
+    optionsContainer.innerHTML = '';
+
+    for (let i = 0; i < currentQuestion.options.length; i++) {
+        const option = document.createElement('div');
+        option.className = 'option';
+        option.textContent = currentQuestion.options[i];
+
+        option.addEventListener('click', function () {
+            selectAnswer(i, option);
+        });
+
+        optionsContainer.appendChild(option);
+    }
+}
+
+function selectAnswer(answerIndex, optionElement) {
+    const allOptions = document.querySelectorAll('.option');
+    for (let i = 0; i < allOptions.length; i++) {
+        allOptions[i].classList.remove('selected');
+    }
+
+    optionElement.classList.add('selected');
+    selectedAnswer = answerIndex;
+    nextBtn.disabled = false;
+}
+
+function nextQuestion() {
+    if (selectedAnswer === questions[currentQuestionIndex].correct) {
+        score++;
+    }
+
+    currentQuestionIndex++;
+
+    if (currentQuestionIndex < questions.length) {
+        showQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+    quizScreen.classList.remove('active');
+    resultScreen.classList.add('active');
+
+    document.getElementById('result-name').textContent = participantData.name;
+    document.getElementById('result-email').textContent = participantData.email;
+    document.getElementById('result-phone').textContent = participantData.phone;
+    document.getElementById('result-age').textContent = participantData.age;
+
+    const totalQuestions = questions.length;
+    const correctAnswers = score;
+    const wrongAnswers = totalQuestions - correctAnswers;
+    const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+
+    scoreNumber.textContent = score;
+    totalQuestionsEl.textContent = totalQuestions;
+    correctAnswersEl.textContent = correctAnswers;
+    wrongAnswersEl.textContent = wrongAnswers;
+    percentageEl.textContent = percentage + '%';
+}
+
+function restartQuiz() {
+    resultScreen.classList.remove('active');
+    homeScreen.classList.add('active');
+
+    currentQuestionIndex = 0;
+    score = 0;
+    selectedAnswer = null;
+}
